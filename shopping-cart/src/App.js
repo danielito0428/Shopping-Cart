@@ -18,6 +18,7 @@ function App() {
     } else {
       setShoppingList((shoppingList) => [...shoppingList, newItem]);
     }
+    handleMinusQty(newItem.id);
   }
   function isItemInTheCart(shoppingCart, itemId) {
     return shoppingCart.some((item) => item.id === itemId);
@@ -34,6 +35,23 @@ function App() {
   function handleDelete(itemId) {
     setShoppingList((shoppingList) =>
       shoppingList.filter((item) => item.id !== itemId)
+    );
+    setItemList((itemList) =>
+      itemList.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              qty: item.qty + Number(shoppingList.map((item) => item.qty)),
+            }
+          : item
+      )
+    );
+  }
+  function handleMinusQty(itemId) {
+    setItemList((itemList) =>
+      itemList.map((item) =>
+        item.id === itemId ? { ...item, qty: item.qty - 1 } : item
+      )
     );
   }
 
@@ -83,9 +101,13 @@ function Item({ item, onAdd }) {
   );
 }
 
-function ShoppingCart({ shoppingList, onDelete, isItemInTheCart }) {
+function ShoppingCart({ shoppingList, onDelete }) {
+  const totalBill = shoppingList.reduce(
+    (total, item) => total + item.price * item.qty,
+    0
+  );
   return (
-    <div>
+    <form>
       <h3>Shopping Cart</h3>
 
       <ul>
@@ -99,7 +121,9 @@ function ShoppingCart({ shoppingList, onDelete, isItemInTheCart }) {
           </li>
         ))}
       </ul>
-    </div>
+      <label>Total: {totalBill.toFixed(2)}$</label>
+      <Button>Pay</Button>
+    </form>
   );
 }
 
